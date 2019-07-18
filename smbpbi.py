@@ -1,4 +1,5 @@
 #!usr/bin/env python
+
 import argparse
 import smbus
 import time
@@ -14,16 +15,16 @@ def main():
     args = parser.parse_args()
     #print args.address , args.datain ,args.command
     datain_list=[0x04]
-    datain_list.append(args.datain%256)
-    datain_list.append(args.datain/256%256)
-    datain_list.append(args.datain/256/256%256)
-    datain_list.append(args.datain/256/256/256)
+    datain_list.append(int(args.datain & 0xff))
+    datain_list.append(int((args.datain & 0xff00)>> 8))
+    datain_list.append(int((args.datain & 0xff0000) >> 16))
+    datain_list.append(int((args.datain & 0xff000000) >> 24))
     
     command_list=[0x04]
-    command_list.append(args.command%256)
-    command_list.append(args.command/256%256)
-    command_list.append(args.command/256/256%256)
-    command_list.append(byte(args.command/256/256/256))
+    command_list.append(int(args.command & 0xff))
+    command_list.append(int((args.command & 0xff00)>> 8))
+    command_list.append(int((args.command & 0xff0000) >> 16))
+    command_list.append(int((args.command & 0xff000000) >> 24))
  
     #print datain_list
     #print command_list
@@ -46,5 +47,4 @@ def main():
     print "SMBPBI readback: {0}, status: {1}".format(data_back[2],status[4])
     #print data_back
     
-	
 main()
