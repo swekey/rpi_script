@@ -1,7 +1,7 @@
-#/etc/bin/env python
-
+#!usr/bin/env python
 import argparse
 import smbus
+import time
 
 #Define i2c bus
 bus_no = 1
@@ -14,26 +14,37 @@ def main():
     args = parser.parse_args()
     #print args.address , args.datain ,args.command
     datain_list=[0x04]
-    datain_list.append(args.datain/256/256/256)
-    datain_list.append(args.datain/256/256%256)
-    datain_list.append(args.datain/256%256)
     datain_list.append(args.datain%256)
+    datain_list.append(args.datain/256%256)
+    datain_list.append(args.datain/256/256%256)
+    datain_list.append(args.datain/256/256/256)
+    
     command_list=[0x04]
-    command_list.append(args.command/256/256/256)
-    command_list.append(args.command/256/256%256)
-    command_list.append(args.command/256%256)
     command_list.append(args.command%256)
+    command_list.append(args.command/256%256)
+    command_list.append(args.command/256/256%256)
+    command_list.append(byte(args.command/256/256/256))
+ 
     #print datain_list
     #print command_list
     bus = smbus.SMBus(bus_no)
     #Write 5D data
     bus.write_i2c_block_data(args.address,0x5d,datain_list)
     #Write 5C command
-    bus.write_i2c_block_data(args.address,0x5c,commnd_list)
+    bus.write_i2c_block_data(args.address,0x5c,command_list)
+    time.sleep(0.1)
     #Read 5C reg
     status= bus.read_i2c_block_data(args.address,0x5c,5)
+    if(status[4] == 0x1f):
     #Read 5D data
-    data_back = bus.read_i2c_block_data(args.address,0x5d,5)
-    print status
-    print data_back
+        data_back = bus.read_i2c_block_data(args.address,0x5d,5)
+    elif(status[4] == 0x1e):
+        bus.write_i2c_block_data(args.address,0x5c,command_list)
+        time.sleep(0.1)
+        data_back = bus.read_i2c_block_data(args.address,0x5d,5)
+    #print status
+    print "SMBPBI readback: {0}, status: {1}".format(data_back[2],status[4])
+    #print data_back
+    
+	
 main()
