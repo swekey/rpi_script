@@ -42,9 +42,10 @@ def main():
     elif(status[4] == 0x1e):
         bus.write_i2c_block_data(args.address,0x5c,command_list)
         time.sleep(0.1)
+        status= bus.read_i2c_block_data(args.address,0x5c,5)
         data_back = bus.read_i2c_block_data(args.address,0x5d,5)
     #print status
-    print "SMBPBI readback: {0}, status: {1}".format(data_back[2],status[4])
+    print "SMBPBI readback: 0x{0:02x}, status: 0x{1:02x}".format(data_back[2],status[4])
     #print data_back
     
 main()
